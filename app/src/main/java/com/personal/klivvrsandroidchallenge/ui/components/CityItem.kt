@@ -14,59 +14,84 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.personal.klivvrsandroidchallenge.data.model.City
 import com.personal.klivvrsandroidchallenge.R
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun CityItem(
     city: City,
     onCityClick: (City) -> Unit,
+    showVerticalLine: Boolean,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable { onCityClick(city) }
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    Row(
+        modifier = modifier.fillMaxWidth()
+
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Flag
-            Image(
-                painter = painterResource(id = getFlagResId(city.country)),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
+            Box(
+                Modifier
+                    .padding(start = 42.dp)
+                    .width(2.dp)
+                    .height(100.dp)
+                    .background(Color.LightGray)
             )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(
-                modifier = Modifier.weight(1f)
+
+        Card(
+            modifier = Modifier
+                .weight(1f) // Take remaining space
+                .padding(start = 24.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
+                .clickable { onCityClick(city) },
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                // Flag
                 Text(
-                    text = "${city.name}, ${city.country}",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    text = city.country.toFlagEmoji(),
+                    fontSize = 24.sp
                 )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = String.format("%.5f, %.5f", city.coordinates.longitude, city.coordinates.latitude),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = "${city.name}, ${city.country}",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = String.format(
+                            "%.5f, %.5f",
+                            city.coordinates.longitude,
+                            city.coordinates.latitude
+                        ),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
 }
 
+fun String.toFlagEmoji(): String {
+    return this
+        .uppercase()
+        .map { char -> 0x1F1E6 + (char.code - 'A'.code) }
+        .joinToString("") { codePoint -> String(Character.toChars(codePoint)) }
+}
+
 fun getFlagResId(countryCode: String): Int {
     return when (countryCode.lowercase()) {
-    //    "dk" -> R.drawable.flag_dk
-    //    "nl" -> R.drawable.flag_nl
+        //    "dk" -> R.drawable.flag_dk
+        //    "nl" -> R.drawable.flag_nl
         // Add more as needed
         else -> R.drawable.ic_launcher_background // fallback
     }
-} 
+}

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 data class CityUiState(
-    val cities: List<City> = emptyList(),
+    val groupedCities: Map<Char, List<City>> = emptyMap(),
     val isLoading: Boolean = false,
     val error: String? = null,
     val searchQuery: String = ""
@@ -30,7 +30,9 @@ class CityViewModel(private val repository: CityRepository) : ViewModel() {
             try {
                 val cities = repository.loadCities()
                 _uiState.value = _uiState.value.copy(
-                    cities = cities,
+                    groupedCities = cities.sortedBy { it.name } // <-- sort cities first
+                        .groupBy { it.name.first().uppercaseChar() }
+                        .toSortedMap(),
                     isLoading = false
                 )
             } catch (e: Exception) {
@@ -45,7 +47,9 @@ class CityViewModel(private val repository: CityRepository) : ViewModel() {
     fun onSearchQueryChange(query: String) {
         _uiState.value = _uiState.value.copy(
             searchQuery = query,
-            cities = repository.searchCities(query)
+            groupedCities = repository.searchCities(query)
+                .sortedBy { it.name } // <-- sort cities first
+                .groupBy { it.name.first().uppercaseChar() }.toSortedMap()
         )
     }
 } 
