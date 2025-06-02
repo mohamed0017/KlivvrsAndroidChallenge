@@ -1,22 +1,29 @@
-package com.personal.klivvrsandroidchallenge.ui.viewmodel
+package com.personal.klivvrsandroidchallenge.ui.screens.cities
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.personal.klivvrsandroidchallenge.data.model.City
-import com.personal.klivvrsandroidchallenge.data.repository.CityRepository
+import com.personal.klivvrsandroidchallenge.domain.model.CityDomain
+import com.personal.klivvrsandroidchallenge.domain.usecase.GetCitiesUseCase
+import com.personal.klivvrsandroidchallenge.domain.usecase.SearchCitiesUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class CityUiState(
-    val groupedCities: Map<Char, List<City>> = emptyMap(),
+    val groupedCities: Map<Char, List<CityDomain>> = emptyMap(),
     val isLoading: Boolean = false,
     val error: String? = null,
     val searchQuery: String = ""
 )
 
-class CityViewModel(private val repository: CityRepository) : ViewModel() {
+@HiltViewModel
+class CityViewModel @Inject constructor(
+    private val getCitiesUseCase: GetCitiesUseCase,
+    private val searchCitiesUseCase: SearchCitiesUseCase
+) : ViewModel() {
     private val _uiState = MutableStateFlow(CityUiState())
     val uiState: StateFlow<CityUiState> = _uiState.asStateFlow()
 
@@ -28,7 +35,7 @@ class CityViewModel(private val repository: CityRepository) : ViewModel() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             try {
-                val cities = repository.loadCities()
+                val cities =  getCitiesUseCase()
                 _uiState.value = _uiState.value.copy(
                     groupedCities = cities.sortedBy { it.name } // <-- sort cities first
                         .groupBy { it.name.first().uppercaseChar() }
@@ -47,9 +54,11 @@ class CityViewModel(private val repository: CityRepository) : ViewModel() {
     fun onSearchQueryChange(query: String) {
         _uiState.value = _uiState.value.copy(
             searchQuery = query,
-            groupedCities = repository.searchCities(query)
+            groupedCities = searchCitiesUseCase(query)
                 .sortedBy { it.name } // <-- sort cities first
                 .groupBy { it.name.first().uppercaseChar() }.toSortedMap()
         )
     }
+
+
 } 

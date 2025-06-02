@@ -1,37 +1,46 @@
-package com.personal.klivvrsandroidchallenge.ui.screens
+package com.personal.klivvrsandroidchallenge.ui.screens.cities
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.compose.ui.unit.dp
-import com.personal.klivvrsandroidchallenge.data.model.City
-import com.personal.klivvrsandroidchallenge.ui.components.CityItem
-import com.personal.klivvrsandroidchallenge.ui.viewmodel.CityViewModel
+import com.personal.klivvrsandroidchallenge.domain.model.CityDomain
+import com.personal.klivvrsandroidchallenge.ui.screens.cities.components.AnimatedSearchBar
+import com.personal.klivvrsandroidchallenge.ui.screens.cities.components.CityItem
+import com.personal.klivvrsandroidchallenge.ui.screens.cities.components.GroupHeader
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CityListScreen(
     viewModel: CityViewModel,
-    onCityClick: (City) -> Unit
+    onCityClick: (CityDomain) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val searchBarFocused = remember { mutableStateOf(false) }
@@ -62,13 +71,13 @@ fun CityListScreen(
             AnimatedVisibility(visible = !uiState.isLoading) {
                 Text(
                     "${uiState.groupedCities.values.flatten().size} cities",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(start = 24.dp, top = 8.dp, bottom = 12.dp),
-                    color = Color.Gray
+                    style = MaterialTheme.typography.bodyMedium.copy(textAlign = Center),
+                    modifier = Modifier.fillMaxWidth().padding(start = 24.dp, top = 24.dp, bottom = 12.dp),
+                    color = Color.DarkGray,
                 )
             }
 
-            Box(Modifier.weight(1f)) {
+            Box(Modifier.fillMaxWidth().weight(1f)) {
                 when {
                     uiState.isLoading -> {
                         CircularProgressIndicator(Modifier.align(Alignment.Center))
@@ -97,7 +106,6 @@ fun CityListScreen(
                                     CityItem(
                                         city = city,
                                         onCityClick = onCityClick,
-                                        showVerticalLine = idx != cities.lastIndex
                                     )
                                 }
 
@@ -122,72 +130,4 @@ fun CityListScreen(
             onFocusChanged = { searchBarFocused.value = it }
         )
     }
-}
-
-
-@Composable
-fun GroupHeader(letter: Char, isFirst: Boolean, isLast: Boolean) {
-    Row(
-        verticalAlignment = Alignment.Top,
-        modifier = Modifier
-            .padding(start = 24.dp, top = if (isFirst) 16.dp else 24.dp, bottom = 8.dp)
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Box(
-                Modifier
-                    .size(36.dp)
-                    .background(Color.White, CircleShape)
-                    .border(1.dp, Color.LightGray, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = letter.toString(),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-            if (!isLast) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Box(
-                    Modifier
-                        .width(2.dp)
-                    //    .height(800.dp)
-                        .background(Color.LightGray)
-                )
-            }
-        }
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AnimatedSearchBar(
-    modifier: Modifier = Modifier,
-    value: String,
-    onValueChange: (String) -> Unit,
-    onFocusChanged: (Boolean) -> Unit
-) {
-    var isFocused by remember { mutableStateOf(false) }
-
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-        placeholder = { Text("Search...") },
-        singleLine = true,
-        shape = CircleShape,
-        modifier = modifier
-            .onFocusChanged { focusState ->
-                isFocused = focusState.isFocused
-                onFocusChanged(isFocused)
-            }
-            .padding(horizontal = 8.dp),
-        colors = TextFieldDefaults.textFieldColors(
-            containerColor = Color.Transparent,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
-        )
-    )
 }

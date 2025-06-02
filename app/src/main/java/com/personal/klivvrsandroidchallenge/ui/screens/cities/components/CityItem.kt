@@ -1,28 +1,34 @@
-package com.personal.klivvrsandroidchallenge.ui.components
+package com.personal.klivvrsandroidchallenge.ui.screens.cities.components
 
-import androidx.compose.foundation.Image
+import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.personal.klivvrsandroidchallenge.data.model.City
-import com.personal.klivvrsandroidchallenge.R
-import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
+import com.personal.klivvrsandroidchallenge.domain.model.CityDomain
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun CityItem(
-    city: City,
-    onCityClick: (City) -> Unit,
-    showVerticalLine: Boolean,
+    city: CityDomain,
+    onCityClick: (CityDomain) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -85,13 +91,4 @@ fun String.toFlagEmoji(): String {
         .uppercase()
         .map { char -> 0x1F1E6 + (char.code - 'A'.code) }
         .joinToString("") { codePoint -> String(Character.toChars(codePoint)) }
-}
-
-fun getFlagResId(countryCode: String): Int {
-    return when (countryCode.lowercase()) {
-        //    "dk" -> R.drawable.flag_dk
-        //    "nl" -> R.drawable.flag_nl
-        // Add more as needed
-        else -> R.drawable.ic_launcher_background // fallback
-    }
 }
